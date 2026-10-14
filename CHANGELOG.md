@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.36.1](https://github.com/Viren070/AIOStreams/compare/v2.36.0...v2.36.1) (2026-10-14)
+
+
+### Features
+
+* **frontend:** rework addons menu ([644dda6](https://github.com/Viren070/AIOStreams/commit/644dda67bd96f406d08fcddcf619434402224298))
+* **jellyfin:** pick the default audio track by the user's audio types ([e0eb9f2](https://github.com/Viren070/AIOStreams/commit/e0eb9f2e6a2809394375f06ed3ce4edb33067eb4))
+* **web:** add sound and output settings for the apps ([976ba8b](https://github.com/Viren070/AIOStreams/commit/976ba8bbc5b50c349b10cfece322b10baae0336a))
+* **web:** honour "play the version's default track first" when re-picking audio ([5d22997](https://github.com/Viren070/AIOStreams/commit/5d22997d466959454b37b22a157804b117810747))
+* **web:** re-pick the audio track by the user's audio types ([1fe5557](https://github.com/Viren070/AIOStreams/commit/1fe555724b3c7b02a18982d8ae0b1ce62c2d9cc4))
+* **web:** show the audio output and memory in ExoPlayer's stats ([27e7b2e](https://github.com/Viren070/AIOStreams/commit/27e7b2ef49648243fdea2b0a903b38247a8359ec))
+* **web:** show the channel setting in the Android app ([4b0f6ac](https://github.com/Viren070/AIOStreams/commit/4b0f6ac3022d8a15dc4c7a9f6b1cbd71caf9405c))
+
+
+### Bug Fixes
+
+* **frontend:** only refresh catalogs on catalog tab ([644dda6](https://github.com/Viren070/AIOStreams/commit/644dda67bd96f406d08fcddcf619434402224298))
+* **jellyfin:** play the session a client was given when its stream request names none ([38c060d](https://github.com/Viren070/AIOStreams/commit/38c060dc081e1ab63ca036f384562a6cba77390d))
+* **jellyfin:** raise the per-configuration maxVersions limit to 500 ([#1517](https://github.com/Viren070/AIOStreams/issues/1517)) ([5cde591](https://github.com/Viren070/AIOStreams/commit/5cde591e45b665c9f85185920b5b503b5abf449a))
+* **ui:** measure a slider's thumb as the whole slider for key navigation ([78d8f10](https://github.com/Viren070/AIOStreams/commit/78d8f105eba7e193376c132ca050f103348af5c3))
+* **web:** compile dependencies to the build's browser targets ([bd1de5b](https://github.com/Viren070/AIOStreams/commit/bd1de5bc9720a9fbadfa0f990de7113db3decf7f))
+* **web:** hide pages kept beneath others with visibility as well ([1526431](https://github.com/Viren070/AIOStreams/commit/15264311d664b1d1bbac195fd07dff7182aef9e6))
+
 ## [2.36.0](https://github.com/Viren070/AIOStreams/compare/v2.35.9...v2.36.0) (2026-10-12)
 
 
