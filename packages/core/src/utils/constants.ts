@@ -10,6 +10,8 @@ export enum ErrorCode {
   ADDON_PASSWORD_INVALID = 'ADDON_PASSWORD_INVALID',
   PARENT_CONFIG_SELF_REFERENCE = 'PARENT_CONFIG_SELF_REFERENCE',
   PARENT_CONFIG_UNAVAILABLE = 'PARENT_CONFIG_UNAVAILABLE',
+  PARENT_CONFIG_CYCLE = 'PARENT_CONFIG_CYCLE',
+  PARENT_CONFIG_TOO_DEEP = 'PARENT_CONFIG_TOO_DEEP',
   // Database
   DATABASE_ERROR = 'DATABASE_ERROR',
   // Encryption
@@ -89,6 +91,14 @@ export const ErrorMap: Record<ErrorCode, ErrorDetails> = {
   [ErrorCode.PARENT_CONFIG_UNAVAILABLE]: {
     statusCode: 400,
     message: 'The parent config could not be loaded',
+  },
+  [ErrorCode.PARENT_CONFIG_CYCLE]: {
+    statusCode: 400,
+    message: 'A config cannot inherit from itself through its parent configs',
+  },
+  [ErrorCode.PARENT_CONFIG_TOO_DEEP]: {
+    statusCode: 400,
+    message: 'The chain of parent configs is too long',
   },
   [ErrorCode.DATABASE_ERROR]: {
     statusCode: 500,

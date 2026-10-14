@@ -16,7 +16,7 @@ import {
   verifyHash,
   validateConfig,
   applyMigrations,
-  mergeConfigs,
+  mergeParentChain,
   assertConfigAccessKey,
 } from '../../utils/index.js';
 import { ConfigProfileRepository } from './config-profiles.js';
@@ -91,27 +91,7 @@ export class UserRepository {
     config.healthResults = undefined;
     config.variantSelectorLocation = undefined;
 
-    let configToValidate: UserData = config;
-    if (config.parentConfig?.uuid) {
-      let parent: UserData;
-      try {
-        const rawParent = await this.getRawUser(
-          config.parentConfig.uuid,
-          config.parentConfig.password
-        );
-        if (!rawParent) throw new Error('Parent config not found');
-        parent = rawParent;
-      } catch (error) {
-        throw new APIError(
-          constants.ErrorCode.PARENT_CONFIG_UNAVAILABLE,
-          undefined,
-          error instanceof APIError ? error.message : String(error)
-        );
-      }
-      const merged = mergeConfigs(parent, config);
-      merged.trusted = parent.trusted || config.trusted;
-      configToValidate = merged;
-    }
+    const configToValidate = await this.withParentConfigs(config);
 
     let validatedConfig: UserData;
     try {
@@ -194,6 +174,23 @@ export class UserRepository {
     }
   }
 
+  /**
+   * The config merged with its parent configs, its parent's parent and so on
+   * (at most MAX_PARENT_CONFIG_DEPTH of them); the config itself when it has
+   * no parent. Pass the config's own UUID, when it has one, to catch a chain
+   * that leads back to it.
+   */
+  static async withParentConfigs(
+    config: UserData,
+    uuid?: string
+  ): Promise<UserData> {
+    return mergeParentChain(
+      config,
+      (parentUuid, password) => this.loadRawUser(parentUuid, password),
+      { uuid, maxDepth: appConfig.userLimits.maxParentConfigDepth }
+    );
+  }
+
   static async getUser(
     uuid: string,
     password: string
@@ -203,14 +200,7 @@ export class UserRepository {
 
       if (config.parentConfig?.uuid) {
         try {
-          const parent = await this.loadRawUser(
-            config.parentConfig.uuid,
-            config.parentConfig.password
-          );
-          config = mergeConfigs(parent, config);
-          // mergeConfigs starts from the child, so trust has to be carried
-          // over by hand, the way both save paths already do it.
-          config.trusted = parent.trusted || config.trusted;
+          config = await this.withParentConfigs(config, uuid);
           logger.info(
             `Merged parent config ${config.parentConfig!.uuid} for user ${uuid}`
           );
@@ -394,19 +384,7 @@ export class UserRepository {
       throw new APIError(constants.ErrorCode.USER_INVALID_DETAILS);
     }
 
-    let configToValidate: UserData = config;
-    if (config.parentConfig?.uuid) {
-      const rawParent = await this.getRawUser(
-        config.parentConfig.uuid,
-        config.parentConfig.password
-      );
-      if (!rawParent) {
-        throw new APIError(constants.ErrorCode.PARENT_CONFIG_UNAVAILABLE);
-      }
-      const merged = mergeConfigs(rawParent, config);
-      merged.trusted = rawParent.trusted || config.trusted;
-      configToValidate = merged;
-    }
+    const configToValidate = await this.withParentConfigs(config, uuid);
 
     let validatedConfig: UserData;
     try {

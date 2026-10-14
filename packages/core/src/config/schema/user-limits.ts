@@ -61,6 +61,16 @@ export const userLimitsSchema = {
     requiresRestart: false,
     secret: false,
   },
+  maxParentConfigDepth: {
+    schema: positiveInt,
+    default: 5,
+    label: 'Max parent config depth',
+    description:
+      "Maximum parent configs a config inherits from: its parent, its parent's parent and so on.",
+    env: 'MAX_PARENT_CONFIG_DEPTH',
+    requiresRestart: false,
+    secret: false,
+  },
   maxKeywordFilters: {
     schema: positiveInt,
     default: 30,

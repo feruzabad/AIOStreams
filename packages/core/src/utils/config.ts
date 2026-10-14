@@ -1729,3 +1729,57 @@ export function mergeConfigs(parent: UserData, child: UserData): UserData {
   }
   return withOwnAccountLock(result, child);
 }
+
+/**
+ * Merges a config with its whole chain of parents: a parent that has its own
+ * parent, and so on. Merging starts from the oldest ancestor, so every level
+ * applies its own merge strategies to everything above it. Follows at most
+ * `maxDepth` parents.
+ *
+ * @param uuid The config's own UUID, when it has one, so a chain leading back
+ *   to it is caught.
+ * @param loadParent Loads a parent config by its UUID and password.
+ */
+export async function mergeParentChain(
+  config: UserData,
+  loadParent: (uuid: string, password: string) => Promise<UserData>,
+  { uuid, maxDepth }: { uuid?: string; maxDepth: number }
+): Promise<UserData> {
+  const chain: UserData[] = [config];
+  const seen = new Set(uuid ? [uuid] : []);
+  let current = config;
+  while (current.parentConfig?.uuid) {
+    const { uuid: parentUuid, password } = current.parentConfig;
+    if (seen.has(parentUuid)) {
+      throw new APIError(constants.ErrorCode.PARENT_CONFIG_CYCLE);
+    }
+    if (chain.length > maxDepth) {
+      throw new APIError(
+        constants.ErrorCode.PARENT_CONFIG_TOO_DEEP,
+        undefined,
+        `The chain of parent configs is longer than the ${maxDepth} this instance allows`
+      );
+    }
+    seen.add(parentUuid);
+    try {
+      current = await loadParent(parentUuid, password);
+    } catch (error) {
+      throw new APIError(
+        constants.ErrorCode.PARENT_CONFIG_UNAVAILABLE,
+        undefined,
+        `Parent config ${parentUuid} could not be loaded: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+    chain.push(current);
+  }
+
+  let merged = chain.pop()!;
+  for (let child = chain.pop(); child; child = chain.pop()) {
+    const trusted = merged.trusted || child.trusted;
+    merged = mergeConfigs(merged, child);
+    merged.trusted = trusted;
+  }
+  return merged;
+}
