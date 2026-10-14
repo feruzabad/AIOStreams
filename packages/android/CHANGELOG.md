@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/Viren070/AIOStreams/compare/android-v0.5.0...android-v0.6.0) (2026-10-14)
+
+
+### Features
+
+* **android:** report web fields to the keyboard as native fields on TV ([045c536](https://github.com/Viren070/AIOStreams/commit/045c536a550295c668d3523b86f58df9d2102f75))
+
+
+### Bug Fixes
+
+* **android:** decode DTS with FFmpeg rather than the device's decoders ([59a0a02](https://github.com/Viren070/AIOStreams/commit/59a0a02a0ac299200a90b7133e5351bc0d0eb699))
+
 ## [0.5.0](https://github.com/Viren070/AIOStreams/compare/android-v0.4.1...android-v0.5.0) (2026-10-14)
 
 
